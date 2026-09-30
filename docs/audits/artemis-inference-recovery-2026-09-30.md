@@ -89,6 +89,27 @@ lms load qwen3.5-4b-mtp --estimate-only --context-length 8192 --parallel 1 --no-
 
 The CLI also stated that the model may fit configured resource guardrails. That statement does not override the LOW-confidence estimate or establish allocation success. Available VRAM was below the reported GPU requirement, and RAM recovery headroom was narrow. **No capacity-ready claim is made and no model was loaded.** These measurements are point-in-time observations, not a continuing reservation or model minimum specification.
 
+## Capacity recheck — 2026-09-30, 15:25 UTC
+
+The user requested a fresh memory check and continuation of the recovery plan. Read-only observations found:
+
+| Observation | Result |
+| --- | --- |
+| Free RAM | 4.76 GiB of 63.71 GiB; 92% memory load |
+| Free VRAM | 2,947 MiB, approximately 2.88 GiB, of 8,151 MiB |
+| Local LM Studio | Existing `llmster` process and port 1234 listener active |
+| Model states | Local REST catalog reports every model `not-loaded`, including the registered 4B candidate |
+| Model worker | No `llama-server` process found in the process-name query |
+| ARTEMIS configuration | Canonical configuration hash still matches the checkpoint |
+
+Two additional estimate-only queries used context 4,096, parallelism 1, and speculative Draft MTP disabled, first with `--gpu 0.5` and then with `--gpu off`. **Both still reported 3.41 GiB GPU and 3.41 GiB total memory with LOW confidence**, identical to the earlier 8,192-token automatic-offload estimate. In particular, reporting GPU memory for a CPU-only request shows that these results do not evidence configuration-sensitive allocation accounting. They cannot establish either reduced GPU demand or a safe host-memory budget. No actual loading attempt was made.
+
+RAM improved slightly, but GPU capacity remained below the reported requirement. RAM and VRAM are not one guaranteed combined allocation pool. The read-only process working-set review identified shared workstation consumers; none was stopped, suspended, or altered, and no owner was inferred from a process name.
+
+A catalog-only recheck at approximately 15:31 UTC found the canonical LOCALAI FQDN and documented LAN endpoints `10.20.1.213`, `10.20.1.41`, and `10.20.0.21` unavailable (`URLError`). This does not determine their exact failure causes. No requests for chat completion, model loading, or remote repair were sent.
+
+The next prerequisite is an owner-coordinated quiet capacity window, followed by a fresh snapshot and separate approval for bounded loading and adapter inference. Conservative planning targets are at least 8 GiB free host RAM and 6 GiB free VRAM; these are safety targets, **not measured model minimums or a guarantee of successful loading**. Resource release must be authorized and performed only by the appropriate owner. No loading permission is inferred from the request to recheck memory.
+
 ## Remaining acceptance and authorization gates
 
 1. Coordinate a new service/capacity window and obtain fresh loaded-model, RAM, and VRAM observations before any loading proposal. Do not stop unknown/shared processes, including the port 8000 listener, or free another owner's resources.
