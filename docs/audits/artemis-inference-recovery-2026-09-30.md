@@ -112,6 +112,34 @@ A catalog-only recheck at approximately 15:31 UTC found the canonical LOCALAI FQ
 
 The next prerequisite is an owner-coordinated quiet capacity window, followed by a fresh snapshot and separate approval for bounded loading and adapter inference. Conservative planning targets are at least 8 GiB free host RAM and 6 GiB free VRAM; these are safety targets, **not measured model minimums or a guarantee of successful loading**. Resource release must be authorized and performed only by the appropriate owner. No loading permission is inferred from the request to recheck memory.
 
+## Renewed route recheck — 2026-09-30, 16:42–17:05 EDT
+
+The user requested another ARTEMIS route check and continuation of recovery. The canonical configuration was read again; its SHA-256 still matched the value above. Safe environment-field inspection confirmed `OPENAI_BASE_URL=http://localai.elementalai.local:1234/v1`, `ARTEMIS_TEXT_ONLY=1`, and key presence without printing the key. The running MCP still reported the canonical checkout and matching `.venv` interpreter. No routing or environment edit was made.
+
+`mobile_diagnose(device_serial='emulator-5554', verify_credentials=true)` remained **blocked**: the custom endpoint timed out, the public OpenAI probe returned HTTP 401, and the requested emulator was absent. The displayed **5/5 required checks pass** count does not override the final blocked verdict. Static diagnostic-code review confirmed that `Active (ChatGPT)` is a configuration/key-presence label and the extra live credential validators request **GET `/models`**, not a completion. Even a passing catalog probe would not prove image interpretation or parsed tool calls. The public OpenAI 401 remains separate from the custom-route timeout.
+
+The safe `attempt_fix=true` recheck applied **no fixes** and found no active/queued ARTEMIS tasks. That call did not repeat live credential verification. At `2026-09-30T16:42:05-04:00`, explicit-path `adb devices -l` succeeded and listed only the out-of-scope physical Samsung; `emulator-5554` was absent. No mobile task, physical-device action, or emulator launch followed. Missing `scrcpy` remains optional.
+
+Client-side connectivity checks beginning at `2026-09-30T16:43:21-04:00` used the canonical FQDN before the documented LAN fallback:
+
+| Observation | Result |
+| --- | --- |
+| `localai.elementalai.local` DNS | `10.20.1.213` and `fd8a:7b6c:4d20:20:be24:11ff:fe4d:eebf` |
+| TCP 1234 through FQDN | Timeout, 5-second bound |
+| TCP 1234 through LAN IPv4 | Timeout, 5-second bound |
+| TCP 1234 through direct IPv6 | Timeout, 3-second bound |
+| LAN IPv4 TCP 3389 | Connected |
+| LAN IPv4 TCP 5985, 5986, 22 | Each timed out |
+| Direct IPv6 TCP 3389, 5985, 5986, 22 | Each timed out |
+
+The direct connectivity script sent no `/v1/models` request after TCP 1234 failed. RDP transport reachability is not proof of an authenticated, observable desktop or an available inference server. These results establish a route-reachability blocker from this client, not its exact listener, firewall, network, credential, or model cause. No WinRM/SSH service, firewall, listener, or server setting was changed.
+
+The existing owned RDP client was revalidated as `mstsc` PID 97960 / HWND 30676030 with title `localai.elementalai.local - Remote Desktop Connection`. Native PIL capture failed with `OSError: screen grab failed`; Orca returned capture files, but both the initial and post-restoration images were entirely black when read. The owned window was restored **for observation only**. A later native DPI-aware check confirmed the same identity and a visible, non-minimized window; an accessible `Default` input desktop and valid window metadata still do not reveal remote content or establish why capture failed. **No remote keys, clicks, or commands were sent during this renewed recheck.** Host interaction paused rather than proceeding blindly.
+
+Consequently, the earlier LOCALAI worker, loaded-model/server inventory, source files, and `16:10:39-04:00` capacity snapshot in [the development setup report](localai-development-setup-2026-09-30.md) were **not refreshed** during this recheck. One peer reported no reservation of its own; that is not global service/GPU clearance or ownership of the previously observed worker. No additional model was registered during this recheck; no model was loaded, no completion was sent, and no unknown/shared process was stopped.
+
+Recovery remains gated on an observable authorized management path and actual service/capacity ownership, then a bounded owned candidate load and device-free adapter proof. Static review identified the `get_llm` / `ainvoke` seam for a supplied synthetic image and bound harmless function schema; **no probe was implemented or executed**. The image-processor runner is not a harmless probe substitute because it executes returned Python tool calls. Candidate adapter proof, effective-MCP routing verification after any separately authorized edit/reload, and designated-emulator app exploration remain distinct, unmet gates.
+
 ## Remaining acceptance and authorization gates
 
 1. Coordinate a new service/capacity window and obtain fresh loaded-model, RAM, and VRAM observations before any loading proposal. Do not stop unknown/shared processes, including the port 8000 listener, or free another owner's resources.
