@@ -6,6 +6,8 @@ The authorized local-only recovery phase registered an existing complete Qwen3.5
 
 This is a documentation-only repository checkpoint. It does not implement the llmstatus Android accessibility retry correction, authorize a provider change, or clear mobile-test authoring or release acceptance.
 
+**Later LOCALAI phase:** the user subsequently authorized LOCALAI software installation and development/inference use. The separate [LOCALAI development setup report](localai-development-setup-2026-09-30.md) records Godot/.NET/LM Studio installation and bounded Godot Windows export/runtime verification, plus the Unity elevation blocker and verified Epic installer. The workstation registration restrictions and observations below are historical to that bounded phase; later LOCALAI installation permission does not reopen the workstation window or authorize persistent ARTEMIS routing, shared-service changes, or mobile actions. No model load, image/tool inference, or application exploration has succeeded in either checkpoint.
+
 ## Scope and runtime provenance
 
 - The running ARTEMIS MCP uses the canonical checkout at `D:/Github-EAI/artemis`, its `.venv` interpreter, canonical configuration, and canonical `.env`.
@@ -125,6 +127,6 @@ The hard-link registration remains in place. Any cleanup must target only the ap
 
 Completed: preserved-source hard-link registration, inventory recognition, estimate-only query, empty loaded-model list, unchanged canonical configuration hash, and preservation of the canonical checkout's pre-existing change set.
 
-Not performed: model loading, image/tool inference, ARTEMIS app exploration, Android build/instrumentation, mobile-test authoring, provider/configuration change, engine installation/update, paid inference, or PR merge.
+Not performed **in the workstation registration phase**: model loading, image/tool inference, ARTEMIS app exploration, Android build/instrumentation, mobile-test authoring, provider/configuration change, engine installation/update, paid inference, or PR merge. Later authorized LOCALAI software/runtime installation and Godot smoke checks are recorded in the linked development setup report; they do not satisfy the inference or mobile acceptance gates.
 
 This checkpoint can be closed as **local discovery/registration complete**, but the overall task cannot be closed as **ARTEMIS inference restored**. The Android exploration and retry-correction gates remain held. Only this report belongs in the recovery checkpoint commit; operational model files, credentials, and canonical pre-existing edits do not.
