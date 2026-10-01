@@ -53,6 +53,7 @@ __all__ = [
     "lightweight_judge_default",
     "load_llm_config_override",
     "parse_llm_config",
+    "parse_llm_config_with_source",
     "validate_vertex_ai_credentials",
 ]
 
@@ -197,8 +198,12 @@ def _expand_default_into_nodes(config_dict: dict) -> dict:
     return result
 
 
-def parse_llm_config() -> LLMConfig:
-    """Parse and instantiate LLMConfig from artemis.jsonc or llm-config.json."""
+def parse_llm_config_with_source(*, log_errors: bool = True) -> tuple[LLMConfig, Path]:
+    """Parse the default config and retain its source without validating credentials.
+
+    Diagnostics disable error logging and expose only static failure categories;
+    validation errors can contain configuration values unsuitable for MCP output.
+    """
     config_path = None
     for candidate in ("artemis.jsonc", "artemis.json", LLM_CONFIG_FILENAME):
         try:
@@ -214,10 +219,17 @@ def parse_llm_config() -> LLMConfig:
         with open(config_path, encoding="utf-8") as f:
             config_dict = load_jsonc(f)
             expanded_dict = _expand_default_into_nodes(config_dict)
-            return LLMConfig.model_validate(expanded_dict)
+            return LLMConfig.model_validate(expanded_dict), config_path
     except Exception as e:
-        logger.error(f"Failed to load or parse llm config: {config_path}. Error: {e}")
+        if log_errors:
+            logger.error(f"Failed to load or parse llm config: {config_path}. Error: {e}")
         raise
+
+
+def parse_llm_config() -> LLMConfig:
+    """Parse and instantiate LLMConfig from artemis.jsonc or llm-config.json."""
+    config, _source = parse_llm_config_with_source()
+    return config
 
 
 def initialize_llm_config() -> LLMConfig:

@@ -43,6 +43,7 @@ from artemis.core.diagnostics.readiness import (
     sort_by_fix_order,
 )
 from artemis.core.diagnostics.schema import ProbeResult, ProbeStatus, SystemReadinessReport
+from artemis.core.diagnostics.selected_route import render_configured_operator
 from artemis.runtime import DeviceExecutionLock, trace_store
 from artemis.runtime.helper_manager import helper_manager
 from artemis.utils.credentials_validator import validate_api_key
@@ -97,6 +98,9 @@ def _scrub(value: Any) -> Any:
         cleaned: dict[str, Any] = {}
         for key, item in value.items():
             if key in _SECRET_METADATA_KEYS:
+                continue
+            if key == "configured_operator":
+                cleaned[key] = render_configured_operator(item)
                 continue
             if key == "installed_packages" and isinstance(item, list):
                 cleaned["installed_package_count"] = len(item)
@@ -1087,6 +1091,7 @@ def _timeout_response(fixes_applied: list[dict[str, Any]]) -> dict[str, Any]:
         "emulator": _emulator_status(),
         "tasks": _task_state(),
         "credentials": None,
+        "configured_operator": render_configured_operator(None),
         "device_probe": None,
         "fixes_applied": fixes_applied,
         "logs": _collect_logs({}),
@@ -1148,6 +1153,10 @@ async def mobile_diagnose(
       - `credentials`: null unless verify_credentials; else
         [{provider, label, valid, message}] per configured credential/endpoint.
         `valid` is the provider-specific check result, not LLM capability proof.
+      - `configured_operator`: secret-free default/operator static preflight
+        for this process's readiness snapshot (which may be cached). It is not
+        the effective task route and does not cover profiles, runner overrides,
+        authentication or capabilities. Verdicts still use credential inventory.
       - `device_probe`: null unless probe_device; else {ok, serial,
         elapsed_seconds, screenshot_bytes, element_count, error, fix}.
       - `fixes_applied`: what `attempt_fix` did ({fix, success, skipped, message}).
@@ -1230,6 +1239,10 @@ async def mobile_diagnose(
     if device is not None and accessibility_helper is not None:
         device["accessibility_helper"] = accessibility_helper
     env_file = host.metadata.get("env_file")
+    credential_probe = _find(results, "gemini_api_key")
+    configured_operator = (
+        credential_probe.metadata.get("configured_operator") if credential_probe else None
+    )
     return {
         "verdict": verdict,
         "summary": _summary(results, verdict, credentials=credentials, device_probe=device_probe),
@@ -1252,6 +1265,7 @@ async def mobile_diagnose(
         "emulator": extras["emulator"],
         "tasks": extras["tasks"],
         "credentials": credentials,
+        "configured_operator": render_configured_operator(configured_operator),
         "device_probe": device_probe,
         "fixes_applied": fixes_applied,
         "logs": _collect_logs(host.metadata),

@@ -17,12 +17,42 @@
 from typing import Any
 from artemis.config import settings
 from artemis.core.diagnostics.probes.base import BaseProbe
+from artemis.core.diagnostics.selected_route import (
+    configured_operator_primary,
+    unknown_configured_operator,
+)
 from artemis.core.diagnostics.schema import (
     ProbeAction,
     ProbeCategory,
     ProbeResult,
     ProbeStatus,
 )
+
+
+def _configured_operator_preflight() -> dict[str, Any]:
+    """Describe this process's default operator config without constructing a client."""
+    import os
+
+    if os.environ.get("ARTEMIS_FAKE_LLM") == "1":
+        return unknown_configured_operator("fake_model_mode")
+    try:
+        from artemis.config.llm import parse_llm_config_with_source
+
+        config, source = parse_llm_config_with_source(log_errors=False)
+        source_kind = {
+            "artemis.jsonc": "artemis_jsonc",
+            "artemis.json": "artemis_json",
+            "llm-config.json": "llm_config_json",
+        }.get(source.name, "other")
+        return configured_operator_primary(
+            config.get_agent("operator").provider,
+            source_kind,
+            settings_base_present=bool(settings.OPENAI_BASE_URL),
+            environment_base_present="OPENAI_BASE_URL" in os.environ,
+        )
+    except Exception:
+        # Configuration errors can contain credentials or private paths.
+        return unknown_configured_operator("config_unavailable")
 
 
 class LLMCredentialsProbe(BaseProbe):
@@ -160,6 +190,7 @@ class LLMCredentialsProbe(BaseProbe):
             "current_key": current_active_key,
             "current_gemini_key": gemini_key.get_secret_value() if gemini_key else "",
             "api_keys": api_keys_map,
+            "configured_operator": _configured_operator_preflight(),
         }
 
         # Case 1: Gemini API Key configured (Standard / Recommended)
