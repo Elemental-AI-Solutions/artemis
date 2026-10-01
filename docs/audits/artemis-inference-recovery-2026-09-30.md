@@ -140,6 +140,22 @@ Consequently, the earlier LOCALAI worker, loaded-model/server inventory, source 
 
 Recovery remains gated on an observable authorized management path and actual service/capacity ownership, then a bounded owned candidate load and device-free adapter proof. Static review identified the `get_llm` / `ainvoke` seam for a supplied synthetic image and bound harmless function schema; **no probe was implemented or executed**. The image-processor runner is not a harmless probe substitute because it executes returned Python tool calls. Candidate adapter proof, effective-MCP routing verification after any separately authorized edit/reload, and designated-emulator app exploration remain distinct, unmet gates.
 
+## Evening route recheck — 2026-09-30
+
+The continuation performed another bounded diagnostic check, not a model/server recovery attempt. At `2026-09-30T20:02:52-04:00`, the recovery worktree was clean, the canonical configuration SHA-256 still matched the recorded value, and safe environment-field inspection confirmed the same LOCALAI base URL and `ARTEMIS_TEXT_ONLY=1`. Key presence was checked without printing its value. No configuration or environment edit followed.
+
+The reconnected ARTEMIS MCP again reported the canonical checkout and matching `.venv` interpreter. `mobile_diagnose(device_serial='emulator-5554', verify_credentials=true)` remained **blocked**: the custom endpoint timed out, the public OpenAI probe returned HTTP 401, and the designated emulator was absent. The displayed **4/4 required checks pass** count is a baseline summary, not acceptance evidence. The public-provider result remains separate from the custom-route timeout; neither catalog validation nor credential presence proves image/tool inference.
+
+Unlike the earlier afternoon observation, this diagnosis reported the daemon **unreachable** and port 8000 occupied by a **non-ARTEMIS process**. This is an optional host warning; its reported standalone fallback is not a task-execution result. The listener was not stopped, adopted, or reconfigured, and no alternative daemon port was set. Missing `scrcpy` remained optional.
+
+The subsequent `attempt_fix=true` diagnosis applied **no fixes** and did not repeat live credential verification. Both diagnoses reported no active or queued ARTEMIS tasks. An explicit-path `adb devices -l` check independently listed only the out-of-scope Samsung, not `emulator-5554`. No physical-device action, emulator launch, or mobile task followed.
+
+Client-side TCP checks beginning at `2026-09-30T20:14:16-04:00` again resolved LOCALAI to the recorded IPv4/IPv6 addresses. Port 1234 through the FQDN and documented LAN IPv4 each timed out with a 5-second socket timeout; LAN IPv4 port 3389 connected. No direct IPv6 connection or WinRM/SSH recheck was performed in this evening check, and the connectivity script sent no HTTP request. These results do not identify the exact service, firewall, network, or model cause.
+
+The existing RDP client's process/window identity still matched PID 97960 / HWND 30676030 and its LOCALAI title. No fresh remote capture, clipboard access, keys, clicks, or commands were attempted. The earlier failed/black captures remain the last inspected remote-content evidence; process identity and an open RDP transport do not establish an observable management path. LOCALAI worker/model/server/source/capacity inventory and resource ownership were not refreshed.
+
+No additional registration, model loading, completion, adapter probe, runtime/service change, or Android test/build work was performed. All inference/effective-route/app-exploration gates remain unmet. The already published [llmstatus accessibility PR](https://github.com/Elemental-AI-Solutions/llmstatus/pull/357) remains a separate review item; the app still could not read its CI checks because of token permissions, and Auto-fix remained off. No merge or monitor-setting change was made during this recheck.
+
 ## Remaining acceptance and authorization gates
 
 1. Coordinate a new service/capacity window and obtain fresh loaded-model, RAM, and VRAM observations before any loading proposal. Do not stop unknown/shared processes, including the port 8000 listener, or free another owner's resources.
