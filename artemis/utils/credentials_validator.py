@@ -56,6 +56,15 @@ def _extract_error_message(resp: httpx.Response) -> str:
     return f"HTTP {resp.status_code}: {resp.reason_phrase}"
 
 
+def _http_failure_message(label: str, status_code: int) -> str:
+    """Format a fixed internal provider label and status, not response content."""
+    if type(status_code) is not int:
+        return f"{label} verification failed (HTTP status unavailable)."
+    if status_code == 400:
+        return f"{label} verification failed (HTTP 400): API key not valid or request rejected."
+    return f"{label} verification failed (HTTP {status_code})."
+
+
 async def validate_api_key(
     provider: str,
     api_key: str,
@@ -67,6 +76,8 @@ async def validate_api_key(
     Most providers use API/catalog access; others use configuration or format
     checks. OCR uses a small image request. Success does not establish LLM
     completion usability, image interpretation, or tool-calling capability.
+    Returned messages and this validator's logs use fixed labels/statuses, not
+    endpoint URLs, response bodies or exceptions. HTTP transport logs are separate.
 
     Args:
         provider: Provider identifier (e.g. 'google', 'gemini', 'ocr', 'openai', 'anthropic', etc.)
@@ -93,9 +104,11 @@ async def validate_api_key(
     ):
         return False, "Please enter a real API key instead of the placeholder."
 
+    provider_label = "Provider"
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
             if is_google_family_provider(clean_provider):
+                provider_label = "Gemini API"
                 # Test Google Gemini via generativelanguage API
                 # The key travels in a header, never in the URL: httpx logs request
                 # URLs at INFO level and those logs end up in files.
@@ -103,10 +116,10 @@ async def validate_api_key(
                 resp = await client.get(url, headers={"x-goog-api-key": clean_key})
                 if resp.status_code == 200:
                     return True, "Google Gemini API key verified successfully."
-                err_msg = _extract_error_message(resp)
-                return False, f"Gemini API verification failed ({resp.status_code}): {err_msg}"
+                return False, _http_failure_message(provider_label, resp.status_code)
 
             elif clean_provider in ("ocr", "vision", "google_vision"):
+                provider_label = "Vision OCR API"
                 # Test Google Cloud Vision OCR API
                 url = "https://vision.googleapis.com/v1/images:annotate"
                 payload = {
@@ -124,10 +137,10 @@ async def validate_api_key(
                 )
                 if resp.status_code == 200:
                     return True, "Google Cloud Vision OCR API key verified successfully."
-                err_msg = _extract_error_message(resp)
-                return False, f"Vision OCR API verification failed ({resp.status_code}): {err_msg}"
+                return False, _http_failure_message(provider_label, resp.status_code)
 
             elif clean_provider == "openai":
+                provider_label = "OpenAI API"
                 endpoint = (
                     f"{base_url.rstrip('/')}/models"
                     if base_url
@@ -136,10 +149,10 @@ async def validate_api_key(
                 resp = await client.get(endpoint, headers={"Authorization": f"Bearer {clean_key}"})
                 if resp.status_code == 200:
                     return True, "OpenAI API key verified successfully."
-                err_msg = _extract_error_message(resp)
-                return False, f"OpenAI API verification failed ({resp.status_code}): {err_msg}"
+                return False, _http_failure_message(provider_label, resp.status_code)
 
             elif clean_provider in ("anthropic", "claude"):
+                provider_label = "Anthropic API"
                 url = "https://api.anthropic.com/v1/models"
                 resp = await client.get(
                     url,
@@ -150,26 +163,26 @@ async def validate_api_key(
                 )
                 if resp.status_code == 200:
                     return True, "Anthropic Claude API key verified successfully."
-                err_msg = _extract_error_message(resp)
-                return False, f"Anthropic API verification failed ({resp.status_code}): {err_msg}"
+                return False, _http_failure_message(provider_label, resp.status_code)
 
             elif clean_provider == "openrouter":
+                provider_label = "OpenRouter API"
                 url = "https://openrouter.ai/api/v1/auth/key"
                 resp = await client.get(url, headers={"Authorization": f"Bearer {clean_key}"})
                 if resp.status_code == 200:
                     return True, "OpenRouter API key verified successfully."
-                err_msg = _extract_error_message(resp)
-                return False, f"OpenRouter API verification failed ({resp.status_code}): {err_msg}"
+                return False, _http_failure_message(provider_label, resp.status_code)
 
             elif clean_provider in ("xai", "grok"):
+                provider_label = "xAI API"
                 url = "https://api.x.ai/v1/models"
                 resp = await client.get(url, headers={"Authorization": f"Bearer {clean_key}"})
                 if resp.status_code == 200:
                     return True, "xAI API key verified successfully."
-                err_msg = _extract_error_message(resp)
-                return False, f"xAI API verification failed ({resp.status_code}): {err_msg}"
+                return False, _http_failure_message(provider_label, resp.status_code)
 
             elif clean_provider in ("ollama", "vllm", "custom"):
+                provider_label = "Custom endpoint"
                 if base_url:
                     endpoint = f"{base_url.rstrip('/')}/models"
                     headers = (
@@ -177,29 +190,25 @@ async def validate_api_key(
                     )
                     resp = await client.get(endpoint, headers=headers)
                     if resp.status_code == 200:
-                        return True, f"Custom endpoint ({base_url}) verified successfully."
-                    err_msg = _extract_error_message(resp)
-                    return (
-                        False,
-                        f"Custom endpoint verification failed ({resp.status_code}): {err_msg}",
-                    )
+                        return True, "Custom endpoint verified successfully."
+                    return False, _http_failure_message(provider_label, resp.status_code)
                 return True, "Custom endpoint configured."
 
             else:
                 # Unknown provider - fallback to basic length check
                 if len(clean_key) >= 8:
-                    return True, f"Credentials for {provider} configured."
-                return False, f"Invalid API key format for {provider}."
+                    return True, "Provider credentials configured."
+                return False, "Invalid API key format for provider."
 
     except httpx.TimeoutException:
-        logger.warning(f"Timeout verifying API key for {provider}")
+        logger.warning(f"Timeout verifying credentials: {provider_label}")
         return (
             False,
-            f"Connection to {provider.capitalize()} API timed out. Please check network/proxy settings.",
+            f"{provider_label} verification timed out. Please check network/proxy settings.",
         )
-    except httpx.RequestError as exc:
-        logger.warning(f"Network error verifying API key for {provider}: {exc}")
-        return False, f"Network error connecting to {provider.capitalize()} API: {exc}"
-    except Exception as exc:
-        logger.error(f"Unexpected error validating API key for {provider}: {exc}")
-        return False, f"Validation error: {exc}"
+    except httpx.RequestError:
+        logger.warning(f"Network error verifying credentials: {provider_label}")
+        return False, f"Network error during {provider_label} verification."
+    except Exception:
+        logger.error(f"Unexpected error validating credentials: {provider_label}")
+        return False, f"Unexpected error during {provider_label} verification."
