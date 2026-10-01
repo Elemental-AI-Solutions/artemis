@@ -371,7 +371,7 @@ async def _handle_launch_avd(
 
 
 async def _verify_credentials(cred_result: ProbeResult | None) -> list[dict[str, Any]]:
-    """Check every configured key against its provider; the keys never leave this function."""
+    """Run provider-specific checks and redact keys/endpoints from returned messages."""
     if cred_result is None:
         return []
     metadata = cred_result.metadata
@@ -420,7 +420,7 @@ async def _verify_credentials(cred_result: ProbeResult | None) -> list[dict[str,
 
 
 def _primary_credential(credentials: list[dict[str, Any]] | None) -> dict[str, Any] | None:
-    """The provider the task runner will use: first configured LLM provider (OCR is auxiliary)."""
+    """Diagnostic primary: first configured non-OCR entry, not the selected runtime route."""
     for entry in credentials or []:
         if entry.get("provider") != "ocr":
             return entry
@@ -1046,7 +1046,11 @@ def _summary(
 ) -> str:
     blockers = [r for r in results if r.is_blocker]
     passed = [r for r in blockers if r.status is ProbeStatus.PASS]
-    line = f"{len(passed)}/{len(blockers)} required checks pass ({verdict})."
+    line = (
+        f"{len(passed)}/{len(blockers)} baseline required checks pass ({verdict}). "
+        "Additional device and live checks are outside this count. Credential configuration "
+        "and API/catalog access do not verify LLM inference, vision, or tool calling."
+    )
     failing = [
         f"{r.title}: {r.summary}"
         for r in sort_by_fix_order(results)
@@ -1109,7 +1113,9 @@ async def mobile_diagnose(
 
     Returns a dict:
       - `verdict`: "ready" | "degraded" (optional pieces missing) | "blocked".
-      - `summary`: one line with the pass count and what needs attention.
+      - `summary`: baseline required-check pass count and what needs attention.
+        Additional device and live checks affect the verdict but are not counted.
+        Configuration and API/catalog access do not prove LLM inference capability.
       - `next_steps`: ordered instructions. `[REQUIRED]`/`[OPTIONAL]` lines
         name a problem; the indented lines under them are the fix. `Run:`
         lines are single, local, non-destructive shell commands you may
@@ -1140,7 +1146,8 @@ async def mobile_diagnose(
         started_at/created_at). Stop a stuck one with
         mobile_manage_task(action="stop", trace_id=<session_id>).
       - `credentials`: null unless verify_credentials; else
-        [{provider, label, valid, message}] per configured key.
+        [{provider, label, valid, message}] per configured credential/endpoint.
+        `valid` is the provider-specific check result, not LLM capability proof.
       - `device_probe`: null unless probe_device; else {ok, serial,
         elapsed_seconds, screenshot_bytes, element_count, error, fix}.
       - `fixes_applied`: what `attempt_fix` did ({fix, success, skipped, message}).
@@ -1167,16 +1174,18 @@ async def mobile_diagnose(
           Never pass it while the status is starting/waiting_for_adb/booting.
           Use it when no device is attached and an AVD exists instead of
           asking the user to start an emulator.
-        verify_credentials: When true, checks every configured API key
-          against its provider over the network (about 12 seconds worst
-          case, keys stay on the server). Use it when tasks fail with
-          authentication, quota or model errors although the key check
-          passes. An invalid primary key makes the verdict "blocked".
-        probe_device: When true, drives the attached device end to end
-          (screenshot + UI hierarchy, about 20 seconds) to prove a task can
-          really start. Use it when the checks pass but tasks still fail on
-          the device, or the screen stays black. A failed probe makes the
-          verdict "blocked" and lists the fix.
+        verify_credentials: When true, runs provider-specific checks on
+          configured credentials/endpoints (about 12 seconds worst case).
+          Most use API/catalog requests; OCR uses a small image request,
+          and other providers may use configuration/format checks only.
+          Secrets are not returned. Success does not prove LLM inference,
+          vision, or tool calling on the selected runtime route. A failed
+          diagnostic-primary check makes the verdict "blocked".
+        probe_device: When true, checks screenshot and UI-hierarchy
+          observation on the attached device (about 20 seconds), not
+          inference-backed task execution. Use it when the checks pass but
+          device observation fails or the screen stays black. A failed
+          probe makes the verdict "blocked" and lists the fix.
     """
     fixes_applied: list[dict[str, Any]] = []
     requested_device = device_serial.strip() if device_serial and device_serial.strip() else None

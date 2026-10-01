@@ -62,7 +62,11 @@ async def validate_api_key(
     base_url: str | None = None,
     timeout: float = 12.0,
 ) -> tuple[bool, str]:
-    """Tests if the provided API key is valid and usable with the corresponding provider.
+    """Run provider-specific credential or endpoint checks.
+
+    Most providers use API/catalog access; others use configuration or format
+    checks. OCR uses a small image request. Success does not establish LLM
+    completion usability, image interpretation, or tool-calling capability.
 
     Args:
         provider: Provider identifier (e.g. 'google', 'gemini', 'ocr', 'openai', 'anthropic', etc.)
@@ -71,7 +75,7 @@ async def validate_api_key(
         timeout: Request timeout in seconds.
 
     Returns:
-        tuple[bool, str]: (is_valid, descriptive_message)
+        tuple[bool, str]: (is_valid, descriptive_message), limited to the checks above.
     """
     clean_provider = provider.strip().lower()
     clean_key = api_key.strip()

@@ -26,7 +26,7 @@ from artemis.core.diagnostics.schema import (
 
 
 class LLMCredentialsProbe(BaseProbe):
-    """Probe verifying Gemini and multi-provider multimodal LLM credentials."""
+    """Probe discovering LLM credential/endpoint configuration, not live capability."""
 
     @property
     def probe_id(self) -> str:
@@ -171,14 +171,20 @@ class LLMCredentialsProbe(BaseProbe):
                 title="Multimodal LLM API Key",
                 status=ProbeStatus.PASS,
                 is_blocker=self.is_blocker,
-                summary="Active (Gemini)",
-                description=f"Gemini multimodal API credential is active ({masked}) and ready for vision and reasoning.",
+                summary="Configured (Gemini)",
+                description=(
+                    f"Gemini API credential is configured ({masked}). This presence check does not "
+                    "verify availability, inference, vision, or tool calling."
+                ),
                 metadata=metadata,
                 actions=[
                     ProbeAction(
                         action_type="hint",
-                        label="Provider Active",
-                        payload="Gemini 2.5 Flash / Pro Multimodal Engine is enabled.",
+                        label="Provider Configured",
+                        payload=(
+                            "Verify the selected runtime route separately; configuration does "
+                            "not establish inference, vision, or tool-calling capability."
+                        ),
                     )
                 ],
             )
@@ -192,14 +198,22 @@ class LLMCredentialsProbe(BaseProbe):
                 title="Multimodal LLM API Key",
                 status=ProbeStatus.PASS,
                 is_blocker=self.is_blocker,
-                summary=f"Active ({first_p['label']})",
-                description=f"{first_p['label']} multimodal API credential is active ({first_p['masked']}).",
+                summary=f"Configured ({first_p['label']})",
+                description=(
+                    f"{first_p['label']} credential/endpoint configuration is present "
+                    f"({first_p['masked']}). This presence check does not verify availability, "
+                    "inference, vision, or tool calling, or identify the selected runtime route."
+                ),
                 metadata=metadata,
                 actions=[
                     ProbeAction(
                         action_type="hint",
-                        label="Provider Active",
-                        payload=f"{first_p['label']} multimodal vision endpoint is active.",
+                        label="Provider Configured",
+                        payload=(
+                            f"{first_p['label']} configuration was found. Verify the selected "
+                            "runtime route separately; configuration does not establish "
+                            "inference, vision, or tool-calling capability."
+                        ),
                     )
                 ],
             )

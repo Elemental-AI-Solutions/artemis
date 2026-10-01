@@ -4,7 +4,7 @@
 
 The authorized local-only recovery phase registered an existing complete Qwen3.5-4B GGUF and matching vision projector using two hard links, then ran a resource estimate. **No model was loaded, no inference was run, and no application was explored.** Catalog capabilities and resource estimates do not satisfy the acceptance gate.
 
-This is a documentation-only repository checkpoint. It does not implement the llmstatus Android accessibility retry correction, authorize a provider change, or clear mobile-test authoring or release acceptance.
+The original registration phase was a documentation-only repository checkpoint. The later diagnostic wording increment is recorded separately below. Neither implements the llmstatus Android accessibility retry correction, authorizes a provider change, or clears mobile-test authoring or release acceptance.
 
 **Later LOCALAI phase:** the user subsequently authorized LOCALAI software installation and development/inference use. The separate [LOCALAI development setup report](localai-development-setup-2026-09-30.md) records Godot/.NET/LM Studio installation and bounded Godot Windows export/runtime verification, plus the Unity elevation blocker and verified Epic installer. The workstation registration restrictions and observations below are historical to that bounded phase; later LOCALAI installation permission does not reopen the workstation window or authorize persistent ARTEMIS routing, shared-service changes, or mobile actions. No model load, image/tool inference, or application exploration has succeeded in either checkpoint.
 
@@ -156,6 +156,20 @@ The existing RDP client's process/window identity still matched PID 97960 / HWND
 
 No additional registration, model loading, completion, adapter probe, runtime/service change, or Android test/build work was performed. All inference/effective-route/app-exploration gates remain unmet. The already published [llmstatus accessibility PR](https://github.com/Elemental-AI-Solutions/llmstatus/pull/357) remains a separate review item; the app still could not read its CI checks because of token permissions, and Auto-fix remained off. No merge or monitor-setting change was made during this recheck.
 
+## Diagnostic wording correction — 2026-09-30
+
+A subsequent development increment corrected misleading diagnostic presentation in the recovery worktree, independently of the historical registration/documentation checkpoint below:
+
+- `LLMCredentialsProbe` now displays **Configured**, not **Active**, and states that detected credential/endpoint configuration does not verify availability, inference, vision, or tool calling. A discovered provider is not evidence of the runtime-selected route.
+- `mobile_diagnose` labels its fraction **baseline required checks** and explains that additional device/live checks are outside that count. Credential configuration and API/catalog access are not LLM capability proof.
+- Validator and MCP tool docstrings describe their actual evidence limits: provider-specific API/catalog, configuration/format, or OCR requests, and screenshot/UI-hierarchy observation rather than inference-backed task execution. Diagnostic-primary ordering is not runtime-router selection.
+
+Probe IDs, provider ordering, statuses, metadata, action structure, signatures, routing, validation requests, counts, and verdict logic remain unchanged. The existing failure-summary phrase `key verification` is retained for compatibility with a pre-existing assertion; the new summary disclaimer qualifies its meaning. No test code was authored or edited. The CLI test fixture's historical `Active (Gemini)` input remains unchanged; it is not a live-probe result.
+
+Existing offline validation used the canonical checkout's already-installed Python interpreter from the recovery worktree. The focused mocked MCP/credential selection passed **38 tests**, with **10 intentionally deselected** (registration, timeout/log, and self-heal cases unrelated to the wording increment). Ruff lint, Ruff format checks, and patch-whitespace checks passed. Read-only Luna review found no schema, control-flow, or secret-return change.
+
+These source edits are confined to this worktree. The canonical runtime configuration, environment, credentials, and pre-existing edits were not changed; the running MCP was not reloaded or revalidated. No live network verification, model load/completion, device action, application exploration, or Android test/build was performed in this increment. It improves reporting accuracy only and does not satisfy any remaining inference/effective-route/exploration gate.
+
 ## Remaining acceptance and authorization gates
 
 1. Coordinate a new service/capacity window and obtain fresh loaded-model, RAM, and VRAM observations before any loading proposal. Do not stop unknown/shared processes, including the port 8000 listener, or free another owner's resources.
@@ -167,7 +181,7 @@ No additional registration, model loading, completion, adapter probe, runtime/se
 
 The hard-link registration remains in place. Any cleanup must target only the approved destination links, not the preserved sources; hard links share file contents, so editing either path would affect the same file. No cleanup is implied by this documentation commit.
 
-## Verification and closure
+## Verification and closure — historical registration checkpoint
 
 Completed: preserved-source hard-link registration, inventory recognition, estimate-only query, empty loaded-model list, unchanged canonical configuration hash, and preservation of the canonical checkout's pre-existing change set.
 
