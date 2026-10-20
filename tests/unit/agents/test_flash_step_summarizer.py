@@ -14,7 +14,7 @@
 
 """Unit tests for VisualStepSummarizer and Context Compressor in Flash profile."""
 
-from unittest.mock import ANY, AsyncMock, Mock, call
+from unittest.mock import ANY, AsyncMock, Mock, call, patch
 from uuid import uuid4
 import pytest
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
@@ -35,7 +35,9 @@ from artemis.sdk.builders import Builders
 def mock_context():
     ctx = Mock(spec=ArtemisContext)
     ctx.data_engine = None
-    return ctx
+    # Tests supply their own responses after construction.
+    with patch("artemis.agents.flash.summarizer.get_llm"):
+        yield ctx
 
 
 @pytest.mark.asyncio
@@ -840,7 +842,7 @@ def test_flash_config_and_builder():
         step_summarizer=True,
         step_summarizer_model="gemini-2.5-flash-lite",
         prune_history_xml=True,
-    ).build()
+    ).build(validate_profiles=False)
 
     assert cfg.flash.max_turns == 25
     assert cfg.flash.explorer_mode == "flash"
