@@ -20,7 +20,7 @@ content after both cleanup passes.
 """
 
 import json
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
@@ -34,7 +34,9 @@ from artemis.context import ArtemisContext
 def mock_context():
     ctx = Mock(spec=ArtemisContext)
     ctx.data_engine = None
-    return ctx
+    # Scrub tests populate the summaries without invoking a model.
+    with patch("artemis.agents.flash.summarizer.get_llm"):
+        yield ctx
 
 
 def _initial_observation():
