@@ -101,10 +101,8 @@ async def test_explorer_run():
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,
@@ -188,10 +186,8 @@ async def test_explorer_submit_answer():
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,
@@ -334,10 +330,8 @@ async def test_explorer_submit_answer_self_correction():
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,
@@ -422,10 +416,8 @@ async def test_explorer_initial_visual_marking():
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,
@@ -513,10 +505,8 @@ async def test_explorer_initial_visual_marking_previous_screenshot():
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,
@@ -601,10 +591,8 @@ async def test_explorer_initial_visual_marking_previous_screenshot_no_ui_tree():
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,
@@ -699,10 +687,8 @@ async def test_explorer_initial_visual_marking_previous_screenshot_ocr_fusion():
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,
@@ -803,10 +789,8 @@ async def test_explorer_initial_visual_marking_previous_screenshot_on_the_fly_oc
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,
@@ -928,10 +912,8 @@ async def test_explorer_denylisted_tool():
         return mock_file
 
     with (
-        patch(
-            "artemis.agents.explorer.explorer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.explorer.run_setup.StorageManager",
             return_value=mock_storage,

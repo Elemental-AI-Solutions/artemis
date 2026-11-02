@@ -96,7 +96,9 @@ def mock_context():
     ctx.data_engine = None
     ctx.adb_client = None
     ctx.driver = Mock()
-    return ctx
+    # Index snapshot tests do not need the runner's incidental model client.
+    with patch("artemis.agents.flash.summarizer.get_google_llm"):
+        yield ctx
 
 
 def _runner(mock_context, observations):

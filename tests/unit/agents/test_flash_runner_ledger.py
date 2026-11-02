@@ -70,7 +70,9 @@ def mock_context():
     ctx.data_engine = None
     ctx.adb_client = None
     ctx.driver = Mock()
-    return ctx
+    # Ledger tests exercise the real summarizer without constructing its model.
+    with patch("artemis.agents.flash.summarizer.get_google_llm"):
+        yield ctx
 
 
 # ---------------------------------------------------------------------------

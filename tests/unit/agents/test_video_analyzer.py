@@ -59,10 +59,8 @@ async def test_video_analyzer_run():
     mock_prompt = "# Dynamic Video Analyzer..."
 
     with (
-        patch(
-            "artemis.agents.video_analyzer.video_analyzer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "pathlib.Path.exists",
             autospec=True,
@@ -214,10 +212,8 @@ async def test_video_analyzer_preserves_thought_signature():
     mock_prompt = "# Dynamic Video Analyzer..."
 
     with (
-        patch(
-            "artemis.agents.video_analyzer.video_analyzer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.video_analyzer.video_analyzer.get_controller",
             return_value=mock_controller,
@@ -416,10 +412,8 @@ async def test_video_analyzer_sub_agent_confidence_validation():
         return ""
 
     with (
-        patch(
-            "artemis.agents.video_analyzer.video_analyzer.genai.Client",
-            return_value=mock_client,
-        ),
+        # Reuse the scripted native client without requiring model credentials.
+        patch.object(mock_ctx, "_genai_client", mock_client, create=True),
         patch(
             "artemis.agents.video_analyzer.video_analyzer.get_controller",
             return_value=mock_controller,

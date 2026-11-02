@@ -44,7 +44,9 @@ def mock_context():
     ctx.data_engine = None
     ctx.adb_client = None
     ctx.driver = Mock()
-    return ctx
+    # The runner constructs an incidental summarizer with an explicit model.
+    with patch("artemis.agents.flash.summarizer.get_google_llm"):
+        yield ctx
 
 
 def test_flash_runner_tools_initialization(mock_context):
