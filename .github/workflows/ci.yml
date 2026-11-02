@@ -1,5 +1,13 @@
 name: CI
 
+# CI execution policy (2026-10-24): execution uses only qualified local
+# self-hosted runners selected by `self-hosted`, the custom label `Default`
+# and the required OS/architecture labels. GitHub-hosted images
+# (ubuntu-*, windows-*, macos-*) and conditional hosted fallback for forks
+# are prohibited. Pull-request jobs that check out or execute code are
+# guarded so fork work stays pending its approved isolated execution path
+# rather than falling back to hosted execution.
+
 on:
   push:
   pull_request:
@@ -18,15 +26,18 @@ env:
 
 jobs:
   python-quality:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     name: Python 3.12 / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ fromJSON(matrix.runner) }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
+        include:
+          - os: linux
+            runner: '["self-hosted","Default","Linux","X64"]'
+          - os: windows
+            runner: '["self-hosted","Default","Windows","X64"]'
 
     steps:
       - name: Check out repository
@@ -78,8 +89,11 @@ jobs:
           --cov-fail-under=60
 
   frontend:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     name: Frontend tests and production build
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Default
+      labels: [self-hosted, Default, Linux, X64]
     timeout-minutes: 20
     defaults:
       run:
@@ -106,8 +120,11 @@ jobs:
         run: npm run build
 
   package:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     name: Build and smoke-test Python packages
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Default
+      labels: [self-hosted, Default, Linux, X64]
     timeout-minutes: 30
 
     steps:
